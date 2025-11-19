@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SmartHub AI</title>
+<title>SmartHub AI v1.0.2</title>
 
 <style>
     body {
@@ -130,6 +130,19 @@
     #speakBtn {
         background: #00ff99;
     }
+
+    /* ---------- Версия ---------- */
+    #versionTag {
+        position: fixed;
+        bottom: 10px;
+        right: 15px;
+        opacity: 0.45;
+        font-size: 14px;
+        font-weight: bold;
+        color: #00d4ff;
+        text-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+        user-select: none;
+    }
 </style>
 </head>
 
@@ -147,6 +160,8 @@
         <button id="speakBtn" onclick="speakLast()">🔊</button>
     </div>
 </div>
+
+<div id="versionTag">v1.0.2</div>
 
 <script>
 const API_URL = "https://smarthub-proxy.onrender.com/v1/chat/completions";
@@ -204,7 +219,7 @@ function addMessage(text, sender) {
     img.src = sender === "user" ? "avatar-user.png" : "avatar-ai.png";
     avatar.appendChild(img);
 
-    // ТЕКСТ
+    // ОБЛАЧКО
     const bubble = document.createElement("div");
     bubble.className = "bubble";
     bubble.textContent = text;
