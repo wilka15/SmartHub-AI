@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartHub AI</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #0b0f19, #1b2340);
+        color: white;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .chat-container {
+        width: 90%;
+        max-width: 600px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(14px);
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 0 25px rgba(0, 150, 255, 0.4);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 26px;
+        text-shadow: 0 0 10px #00d4ff;
+    }
+
+    #chat {
+        height: 300px;
+        overflow-y: auto;
+        padding: 10px;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.25);
+        margin-bottom: 20px;
+    }
+
+    .msg {
+        margin-bottom: 12px;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 85%;
+    }
+
+    .user {
+        background: rgba(0, 150, 255, 0.5);
+        align-self: flex-end;
+    }
+
+    .ai {
+        background: rgba(100, 255, 150, 0.4);
+    }
+
+    .input-area {
+        display: flex;
+        gap: 10px;
+    }
+
+    #userInput {
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        font-size: 16px;
+    }
+
+    button {
+        padding: 12px 18px;
+        border: none;
+        border-radius: 10px;
+        background: #00d4ff;
+        color: black;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        transform: scale(1.05);
+        background: #00f6ff;
+    }
+
+    #micBtn {
+        background: #ff3b3b;
+    }
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+    <h2>SmartHub AI</h2>
+
+    <div id="chat"></div>
+
+    <div class="input-area">
+        <input id="userInput" type="text" placeholder="Введите вопрос..." />
+        <button onclick="sendMessage()">➤</button>
+        <button id="micBtn" onclick="voiceInput()">🎤</button>
+    </div>
+</div>
+
+<script>
+const API_URL = "https://openai-proxy-ucgy.onrender.com/v1/responses";
+
+async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage(text, "user");
+    input.value = "";
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini",
+                input: text
+            })
+        });
+
+        const data = await response.json();
+        console.log("Ответ AI:", data);
+
+        if (!data.output) {
+            addMessage("Ошибка: сервер вернул неопознанный ответ", "ai");
+            return;
+        }
+
+        const ai = data.output[0].content[0].text;
+
+        addMessage(ai, "ai");
+        speak(ai);
+
+    } catch (err) {
+        addMessage("Ошибка соединения с сервером", "ai");
+        console.error(err);
+    }
+}
+
+function addMessage(msg, sender) {
+    const chat = document.getElementById("chat");
+    const div = document.createElement("div");
+    div.className = "msg " + sender;
+    div.textContent = msg;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function voiceInput() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return alert("Ваш браузер не поддерживает голосовой ввод");
+
+    const rec = new SpeechRecognition();
+    rec.lang = "ru-RU";
+    rec.start();
+
+    document.getElementById("micBtn").style.background = "#ffa200";
+
+    rec.onresult = function(e) {
+        const text = e.results[0][0].transcript;
+        document.getElementById("userInput").value = text;
+        document.getElementById("micBtn").style.background = "#ff3b3b";
+    };
+
+    rec.onend = () => {
+        document.getElementById("micBtn").style.background = "#ff3b3b";
+    };
+}
+
+function speak(text) {
+    const synth = window.speechSynthesis;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ru-RU";
+    utter.rate = 1;
+    synth.speak(utter);
+}
+</script>
+
+</body>
+</html>
