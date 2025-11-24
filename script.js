@@ -1,4 +1,4 @@
-const API_URL = "https://openai-proxy-3.onrender.com/v1/responses";
+const API_URL = "https://openai-proxy-1-89m3.onrender.com/v1/responses";
 
 let lastAIMessage = "";
 let userAvatar = localStorage.getItem("userAvatar") || "user1.png";
