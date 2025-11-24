@@ -1,208 +1,300 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartHub AI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Chat</title>
+<style>
+:root {
+  --bg-dark: #0b0f19;
+  --text-dark: #eef2f5;
+  --panel-dark: rgba(255,255,255,0.05);
+  --bg-light: #ffffff;
+  --text-light: #222222;
+  --panel-light: rgba(0,0,0,0.07);
+  --accent: #00d4ff;
+}
 
-  <style>
-    :root {
-      --accent: #7a5bff; /* фиолетовый неон */
-      --accent2: #00a6ff; /* синий неон */
-      --bg: linear-gradient(135deg, #120028, #001233); /* плавный фиолетово‑синий фон */
-      --panel: rgba(255,255,255,0.06);
-      --text: #e9faff;
-    }
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-dark);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.3s;
+}
+body.light {
+  background: var(--bg-light);
+  color: var(--text-light);
+}
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      font-family: 'Orbitron', sans-serif;
-      color: var(--text);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
+.container {
+  width: 95%;
+  max-width: 900px;
+  display: flex;
+  gap: 20px;
+}
 
-    /* НЕОНОВЫЕ БЛОБЫ */
-    .neon-blobs {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      filter: blur(80px);
-      pointer-events: none;
-    }
-    .neon-blob {
-      position: absolute;
-      width: 450px;
-      height: 450px;
-      background: radial-gradient(circle, rgba(0,255,255,0.9), rgba(0,150,255,0.5), transparent);
-      mix-blend-mode: screen;
-      animation: floatBlob 14s infinite alternate ease-in-out;
-    }
-    .neon-blob:nth-child(2) {
-      background: radial-gradient(circle, rgba(255,0,255,0.9), rgba(140,0,255,0.5), transparent);
-      animation-duration: 18s;
-    }
-    .neon-blob:nth-child(3) {
-      background: radial-gradient(circle, rgba(0,255,120,0.9), rgba(0,200,80,0.5), transparent);
-      animation-duration: 22s;
-    }
-    @keyframes floatBlob {
-      0% { transform: translate(-10%, -10%) scale(1); }
-      50% { transform: translate(30%, 15%) scale(1.3); }
-      100% { transform: translate(60%, -20%) scale(0.9); }
-    }
+.chat {
+  flex: 2;
+  background: var(--panel-dark);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  transition: 0.3s;
+}
+body.light .chat { background: var(--panel-light); }
 
-    /* ЧАТ */
-    .chat-container {
-      width: 90%;
-      max-width: 900px;
-      background: var(--panel);
-      backdrop-filter: blur(20px);
-      padding: 20px;
-      border-radius: 20px;
-      border: 1px solid rgba(0,255,255,0.2);
-      box-shadow: 0 0 30px rgba(0,255,255,0.2);
-    }
+.header {
+  font-size: 24px;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 10px;
+}
 
-    #chat {
-      height: 58vh;
-      overflow-y: auto;
-      padding-right: 6px;
-    }
+.window {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+}
 
-    .msg {
-      margin-bottom: 14px;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .msg.user { justify-content: flex-end; }
+.msg {
+  margin-bottom: 14px;
+  display: flex;
+  gap: 10px;
+}
+.msg.user { justify-content: flex-end; }
 
-    .bubble {
-      background: rgba(255,255,255,0.08);
-      padding: 12px 16px;
-      border-radius: 12px;
-      max-width: 70%;
-      backdrop-filter: blur(10px);
-      animation: fadeIn 0.3s ease;
-    }
+.bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--panel-dark);
+  animation: fade 0.3s forwards;
+}
+body.light .bubble { background: var(--panel-light); }
+.msg.user .bubble { background: var(--accent); color: black; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-    .input-bar {
-      display: flex;
-      gap: 10px;
-      margin-top: 12px;
-    }
+.typing {
+  display: flex;
+  gap: 4px;
+}
+.typing span {
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: bounce 1s infinite;
+}
+.typing span:nth-child(2) { animation-delay: .2s; }
+.typing span:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce {
+  0%, 80% { transform: translateY(0); opacity: .3; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
 
-    input {
-      flex: 1;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: none;
-      background: rgba(255,255,255,0.12);
-      color: var(--text);
-      font-family: inherit;
-    }
+.input-area {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
 
-    .btn {
-      border: none;
-      padding: 12px 16px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-family: inherit;
-      font-weight: bold;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #000;
-      transition: 0.2s;
-    }
+input[type=text] {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: rgba(0,0,0,0.2);
+  color: inherit;
+}
+body.light input[type=text] { background: rgba(0,0,0,0.1); }
 
-    .btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px var(--accent);
-    }
+.btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  padding: 0 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-    .clear-btn {
-      margin-top: 10px;
-      width: 100%;
-      background: rgba(255,255,255,0.15);
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,0.2);
-      backdrop-filter: blur(10px);
-      transition: 0.25s;
-    }
+.btn.send {
+  background: var(--accent);
+  color: #002;
+  width: 48px;
+}
 
-    .clear-btn:hover {
-      background: rgba(255,255,255,0.3);
-      box-shadow: 0 0 20px rgba(0,255,255,0.3);
-    }
-  </style>
+.btn.clear {
+  background: linear-gradient(135deg, #cccccc, #e0e0e0);
+  color: white;
+  padding: 10px 18px;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: 0.25s;
+}
+.btn.clear:hover {
+  background: linear-gradient(135deg, #ff1f1f, #ff5e5e);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(255,0,0,0.4);
+}
+
+.settings {
+  flex: 1;
+  background: var(--panel-dark);
+  border-radius: 12px;
+  padding: 20px;
+  transition: 0.3s;
+}
+body.light .settings { background: var(--panel-light); }
+
+.photo-input { display: none; }
+
+</style>
 </head>
-
 <body>
+<div class="container">
+  <div class="chat">
+    <div class="header">AI Chat</div>
+    <div id="chatWindow" class="window"></div>
 
-  <!-- НЕОНОВЫЕ ФОРМЫ -->
-  <div class="neon-blobs">
-    <div class="neon-blob"></div>
-    <div class="neon-blob"></div>
-    <div class="neon-blob"></div>
-  </div>
-
-  <div class="chat-container">
-    <div id="chat"></div>
-
-    <div class="input-bar">
-      <input id="userInput" placeholder="Введите сообщение..." />
-      <button class="btn" id="sendBtn">Отправить</button>
+    <div class="input-area">
+      <input id="textInput" type="text" placeholder="Введите сообщение..." />
+      <button class="btn send" id="sendBtn">➤</button>
+      <button class="btn" id="photoBtn">📷</button>
+      <button class="btn" id="micBtn">🎤</button>
+      <button class="btn" id="speakBtn">🔊</button>
+      <input type="file" id="photoInput" class="photo-input" accept="image/*" />
     </div>
-
-    <button class="clear-btn" id="clearBtn">Очистить чат</button>
   </div>
 
-  <script>
-    const chat = document.getElementById("chat");
+  <div class="settings">
+    <h3 style="color:var(--accent);margin-top:0;">Настройки</h3>
+    <label>
+      <input type="checkbox" id="themeSwitch" /> Светлая тема
+    </label>
 
-    function addMessage(text, role) {
-      let wrap = document.createElement("div");
-      wrap.className = "msg " + role;
+    <br><br>
+    <button class="btn clear" id="clearBtn">🗑 Очистить чат</button>
+  </div>
+</div>
 
-      let b = document.createElement("div");
-      b.className = "bubble";
-      b.textContent = text;
+<script>
+const chat = document.getElementById("chatWindow");
+const textInput = document.getElementById("textInput");
+const themeSwitch = document.getElementById("themeSwitch");
+const photoInput = document.getElementById("photoInput");
 
-      wrap.appendChild(b);
-      chat.appendChild(wrap);
-      chat.scrollTop = chat.scrollHeight;
-    }
+const API_TEXT = "https://openai-proxy-3.onrender.com/v1/responses";
 
-    async function sendMessage() {
-      const inp = document.getElementById("userInput");
-      const text = inp.value.trim();
-      if (!text) return;
+function addMessage(text, role) {
+  const div = document.createElement("div");
+  div.className = "msg " + role;
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+  div.appendChild(bubble);
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
 
-      addMessage(text, "user");
-      inp.value = "";
+function addTyping() {
+  const div = document.createElement("div");
+  div.className = "msg ai";
+  div.id = "typing";
+  div.innerHTML = `<div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+function removeTyping() {
+  const t = document.getElementById("typing");
+  if (t) t.remove();
+}
 
-      addMessage("...", "ai");
+async function sendText() {
+  const text = textInput.value.trim();
+  if (!text) return;
 
-      setTimeout(() => {
-        chat.lastChild.remove();
-        addMessage("Ответ нейронки: " + text, "ai");
-      }, 600);
-    }
+  addMessage(text, "user");
+  textInput.value = "";
 
-    document.getElementById("sendBtn").onclick = sendMessage;
-    document.getElementById("clearBtn").onclick = () => chat.innerHTML = "";
+  addTyping();
 
-  </script>
+  const res = await fetch(API_TEXT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "gpt-4o-mini", input: text })
+  });
+  const data = await res.json();
 
+  removeTyping();
+
+  let answer =
+    data.choices?.[0]?.message?.content ||
+    data.output?.[0]?.content?.[0]?.text ||
+    "Ошибка ответа API";
+
+  addMessage(answer, "ai");
+}
+
+document.getElementById("sendBtn").onclick = sendText;
+textInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") sendText();
+});
+
+// ---------- Смена темы ----------
+themeSwitch.onchange = () => {
+  document.body.classList.toggle("light", themeSwitch.checked);
+};
+
+// ---------- Очистить чат ----------
+document.getElementById("clearBtn").onclick = () => {
+  chat.innerHTML = "";
+};
+
+// ---------- Голосовой ввод ----------
+document.getElementById("micBtn").onclick = () => {
+  const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Rec) return alert("Голосовой ввод не поддерживается");
+
+  const rec = new Rec();
+  rec.lang = "ru-RU";
+  rec.interimResults = false;
+  rec.onresult = e => {
+    textInput.value = e.results[0][0].transcript;
+  };
+  rec.start();
+};
+
+// ---------- Озвучка ответа ----------
+document.getElementById("speakBtn").onclick = () => {
+  const last = [...document.querySelectorAll('.msg.ai .bubble')].pop();
+  if (!last) return;
+  const utter = new SpeechSynthesisUtterance(last.textContent);
+  utter.lang = "ru-RU";
+  speechSynthesis.speak(utter);
+};
+
+// ---------- Фото ----------
+document.getElementById("photoBtn").onclick = () => photoInput.click();
+photoInput.onchange = () => {
+  const file = photoInput.files[0];
+  if (!file) return;
+
+  addMessage("Фото отправлено (распознавание в разработке)", "user");
+};
+</script>
 </body>
 </html>
