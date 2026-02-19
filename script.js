@@ -1,4 +1,3 @@
-// Находим элементы на странице
 const promptEl = document.getElementById("prompt");
 const sendBtn = document.getElementById("send");
 const responseEl = document.getElementById("response");
