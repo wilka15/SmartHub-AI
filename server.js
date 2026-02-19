@@ -12,8 +12,14 @@ app.use(express.static("."));
 app.post("/api/chat", async (req, res) => {
   const { messages } = req.body;
 
+  console.log("Получено messages:", messages);
+
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: "messages пустой или неверный формат" });
+  }
+
+  if (!process.env.ROUTERAI_API_KEY) {
+    return res.status(500).json({ error: "Ключ API не задан" });
   }
 
   try {
@@ -26,20 +32,19 @@ app.post("/api/chat", async (req, res) => {
       body: JSON.stringify({ model: "gpt-4", messages }),
     });
 
-    const data = await response.json();
+    console.log("HTTP статус RouterAI:", response.status);
 
-    if (!response.ok) {
-      return res.status(response.status).json({ error: data });
-    }
-    if (!data.choices || !data.choices.length) {
-      return res.status(500).json({ error: "Модель вернула пустой ответ" });
-    }
+    const data = await response.json();
+    console.log("Ответ RouterAI:", data);
+
+    if (!response.ok) return res.status(response.status).json({ error: data });
+    if (!data.choices || !data.choices.length) return res.status(500).json({ error: "Модель вернула пустой ответ" });
 
     res.json(data);
 
   } catch (err) {
     console.error("Ошибка сервера:", err);
-    res.status(500).json({ error: "Ошибка соединения с routerai" });
+    res.status(500).json({ error: "Ошибка соединения с RouterAI" });
   }
 });
 
