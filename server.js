@@ -7,11 +7,11 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors()); // разрешаем запросы с фронтенда
-app.use(express.json()); // парсинг JSON
-app.use(express.static(".")); // статические файлы фронтенда
+app.use(cors());
+app.use(express.json());
+app.use(express.static(".")); // оставляем корень, как у тебя
 
-// Основной маршрут для общения с ИИ
+// Основной маршрут к routerai.ru
 app.post("/api/chat", async (req, res) => {
   try {
     const { messages } = req.body;
@@ -21,7 +21,6 @@ app.post("/api/chat", async (req, res) => {
       return res.status(400).json({ error: "messages пустой или неверный формат" });
     }
 
-    // Отправка запроса на routerai.ru
     const response = await fetch("https://routerai.ru/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -36,17 +35,9 @@ app.post("/api/chat", async (req, res) => {
 
     const data = await response.json();
 
-    // Если API вернул ошибку
-    if (!response.ok) {
-      return res.status(response.status).json({ error: data });
-    }
+    if (!response.ok) return res.status(response.status).json({ error: data });
+    if (!data.choices || !data.choices.length) return res.status(500).json({ error: "Модель вернула пустой ответ" });
 
-    // Если нет ответов от модели
-    if (!data.choices || !data.choices.length) {
-      return res.status(500).json({ error: "Модель вернула пустой ответ" });
-    }
-
-    // Всё ок — возвращаем клиенту
     res.json(data);
 
   } catch (err) {
@@ -55,6 +46,5 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-// Запуск сервера на порту Render
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000; // оставляем 10000 как fallback
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));
