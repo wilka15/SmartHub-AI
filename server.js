@@ -5,13 +5,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static("."));
 
-// Основной маршрут
 app.post("/api/chat", async (req, res) => {
   const { messages } = req.body;
 
@@ -31,8 +28,12 @@ app.post("/api/chat", async (req, res) => {
 
     const data = await response.json();
 
-    if (!response.ok) return res.status(response.status).json({ error: data });
-    if (!data.choices || !data.choices.length) return res.status(500).json({ error: "Модель вернула пустой ответ" });
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data });
+    }
+    if (!data.choices || !data.choices.length) {
+      return res.status(500).json({ error: "Модель вернула пустой ответ" });
+    }
 
     res.json(data);
 
