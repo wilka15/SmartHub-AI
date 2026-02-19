@@ -9,14 +9,13 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(".")); // оставляем корень, как у тебя
+app.use(express.static(".")); // оставляем корень проекта
 
-// Основной маршрут к routerai.ru
+// POST /api/chat
 app.post("/api/chat", async (req, res) => {
   try {
     const { messages } = req.body;
 
-    // Проверка body
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ error: "messages пустой или неверный формат" });
     }
@@ -27,10 +26,7 @@ app.post("/api/chat", async (req, res) => {
         "Authorization": `Bearer ${process.env.ROUTERAI_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: "gpt-4",
-        messages,
-      }),
+      body: JSON.stringify({ model: "gpt-4", messages }),
     });
 
     const data = await response.json();
@@ -46,5 +42,5 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 10000; // оставляем 10000 как fallback
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));
