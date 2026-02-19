@@ -12,12 +12,17 @@ sendBtn.addEventListener("click", async () => {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: [{ role: "user", content: prompt }] })
+      body: JSON.stringify({
+        messages: [{ role: "user", content: prompt }],
+      }),
     });
 
     const data = await res.json();
-    if (data.error) responseEl.textContent = `Ошибка: ${JSON.stringify(data.error)}`;
-    else responseEl.textContent = data.choices[0].message.content;
+    if (data.error) {
+      responseEl.textContent = `Ошибка: ${JSON.stringify(data.error)}`;
+    } else {
+      responseEl.textContent = data.choices[0].message.content;
+    }
   } catch (err) {
     responseEl.textContent = "Ошибка запроса к серверу";
     console.error(err);
