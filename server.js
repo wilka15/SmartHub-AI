@@ -12,8 +12,6 @@ app.use(express.static("."));
 app.post("/api/chat", async (req, res) => {
   const { messages } = req.body;
 
-  console.log("Получено messages:", messages);
-
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: "messages пустой или неверный формат" });
   }
@@ -32,9 +30,8 @@ app.post("/api/chat", async (req, res) => {
       body: JSON.stringify({ model: "gpt-4", messages }),
     });
 
-    console.log("HTTP статус RouterAI:", response.status);
-
     const data = await response.json();
+    console.log("HTTP статус RouterAI:", response.status);
     console.log("Ответ RouterAI:", data);
 
     if (!response.ok) return res.status(response.status).json({ error: data });
