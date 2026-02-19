@@ -16,13 +16,8 @@ sendBtn.addEventListener("click", async () => {
     });
 
     const data = await res.json();
-
-    if (data.error) {
-      responseEl.textContent = `Ошибка: ${JSON.stringify(data.error)}`;
-      console.error(data.error);
-    } else {
-      responseEl.textContent = data.choices[0].message.content;
-    }
+    if (data.error) responseEl.textContent = `Ошибка: ${JSON.stringify(data.error)}`;
+    else responseEl.textContent = data.choices[0].message.content;
   } catch (err) {
     responseEl.textContent = "Ошибка запроса к серверу";
     console.error(err);
