@@ -20,7 +20,7 @@ app.post("/api/chat", async (req, res) => {
       return res.status(400).json({ error: "messages пустой или неверный формат" });
     }
 
-    const response = await fetch("https://routerai.ru/api/v1", {
+    const response = await fetch("https://routerai.ru/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.ROUTERAI_API_KEY}`,
