@@ -5,10 +5,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors()); // включаем CORS для всех запросов
 app.use(express.json());
 app.use(express.static("."));
 
+// маршрут для общения с routerai
 app.post("/api/chat", async (req, res) => {
   try {
     const { messages } = req.body;
