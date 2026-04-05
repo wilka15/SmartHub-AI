@@ -5,21 +5,18 @@ sendBtn.addEventListener("click", async () => {
   responseEl.textContent = "Идёт обработка...";
 
   try {
-    // ИСПРАВЛЕННЫЙ КОД:
+    // --- ИСПРАВЛЕННАЯ СТРОКА ---
     // 1. Используем функцию fetch().
-    // 2. Указываем полный адрес вашего работающего сервера.
-    const res = await fetch("https://openai-proxy-4.onrender.com/v1/chat/completions", {
+    // 2. Указываем полный путь /v1/chat/completions, который слушает ваш сервер.
+    const res = await fetch("https://smarthub-proxy.onrender.com/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: [{ role: "user", content: prompt }] })
     });
 
     const data = await res.json();
-    if (data.error) {
-        responseEl.textContent = `Ошибка: ${data.error.message}`;
-    } else {
-        responseEl.textContent = data.choices[0].message.content;
-    }
+    if (data.error) responseEl.textContent = `Ошибка: ${JSON.stringify(data.error)}`;
+    else responseEl.textContent = data.choices[0].message.content;
 
   } catch (err) {
     responseEl.textContent = "Ошибка запроса к серверу";
