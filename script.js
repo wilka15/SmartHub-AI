@@ -1,4 +1,4 @@
-sendBtn.addEventListener("https://smarthub-proxy.onrender.com", async () => {
+sendBtn.addEventListener("click", async () => {
   const prompt = promptEl.value.trim();
   if (!prompt) return alert("Введите текст!");
 
