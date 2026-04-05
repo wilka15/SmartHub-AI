@@ -5,27 +5,22 @@ sendBtn.addEventListener("click", async () => {
   responseEl.textContent = "Идёт обработка...";
 
   try {
-    // ИЗМЕНЕНИЕ: Добавлен mode: 'no-cors'
+    // ИСПРАВЛЕНО: Используем функцию fetch и добавляем путь /v1/chat/completions
     const res = await fetch("https://smarthub-proxy.onrender.com/v1/chat/completions", {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json"
-        // При mode: 'no-cors' нельзя ставить свои заголовки авторизации,
-        // поэтому ключ нужно передавать в теле запроса или через query-параметры.
-        // Но для теста попробуем так.
-      },
-      body: JSON.stringify({ 
-        messages: [{ role: "user", content: prompt }],
-        // ИЗМЕНЕНИЕ: Передаем ключ в теле запроса, так как заголовок будет проигнорирован
-        api_key: "ВАШ_КЛЮЧ_ROUTERAI" 
-      }),
-      mode: 'no-cors' // <-- ЭТО ВАЖНАЯ СТРОКА
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: prompt }] })
     });
 
-    // При mode: 'no-cors' мы не можем прочитать ответ сервера здесь.
-    // Поэтому просто считаем, что всё прошло успешно.
-    // Ответ придет на сервер Render в логи.
-    responseEl.textContent = "✅ Запрос отправлен! Проверьте логи сервера.";
+    const data = await res.json();
+    
+    // Проверяем, пришел ли ответ в ожидаемом формате
+    if (data.error) {
+        responseEl.textContent = `Ошибка: ${JSON.stringify(data.error)}`;
+    } else {
+        // Пытаемся получить ответ от ИИ
+        responseEl.textContent = data.choices[0].message.content;
+    }
 
   } catch (err) {
     responseEl.textContent = "Ошибка запроса к серверу";
