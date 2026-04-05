@@ -8,7 +8,7 @@ sendBtn.addEventListener("click", async () => {
     // ИСПРАВЛЕННЫЙ КОД:
     // 1. Используем функцию fetch().
     // 2. Указываем полный адрес вашего работающего сервера.
-    const res = await fetch("https://<ИМЯ_ВАШЕГО_СЕРВИСА>.onrender.com/v1/chat/completions", {
+    const res = await fetch("https://openai-proxy-4.onrender.com/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: [{ role: "user", content: prompt }] })
