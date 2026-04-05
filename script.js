@@ -5,7 +5,8 @@ sendBtn.addEventListener("click", async () => {
   responseEl.textContent = "Идёт обработка...";
 
   try {
-    const res = await ("https://smarthub-proxy.onrender.com", {
+    // --- ИСПРАВЛЕННЫЙ КОД ---
+    const res = await fetch("https://smarthub-proxy.onrender.com/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: [{ role: "user", content: prompt }] })
