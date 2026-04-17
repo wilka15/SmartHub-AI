@@ -1,28 +1,36 @@
 import express from "express";
-import fetch from "node-fetch";
 import cors from "cors";
 import dotenv from "dotenv";
-import rateLimit from "express-rate-limit";
+import fetch from "node-fetch";
 
 dotenv.config();
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-// защита от спама
-const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 20
-});
-app.use(limiter);
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-zа-я0-9]/gi, "");
+}
+
+// простой фильтр
+function isBlocked(text) {
+  const clean = normalize(text);
+  const banned = ["porn", "порно", "sex", "секс"];
+  return banned.some(w => clean.includes(w));
+}
 
 app.post("/api/chat", async (req, res) => {
-  const { message } = req.body;
+  const message = req.body.message;
 
-  if (!message || message.length > 2000) {
-    return res.status(400).json({ error: "Invalid input" });
+  if (!message || message.length > 1500) {
+    return res.json({ reply: "❌ Слишком длинный запрос" });
+  }
+
+  if (isBlocked(message)) {
+    return res.json({ reply: "⛔ Запрос заблокирован системой безопасности" });
   }
 
   try {
@@ -39,16 +47,17 @@ app.post("/api/chat", async (req, res) => {
     });
 
     const data = await response.json();
-    const reply = data.output?.[0]?.content?.[0]?.text || "Ошибка";
+
+    const reply =
+      data.output?.[0]?.content?.[0]?.text ||
+      "Ошибка ответа";
 
     res.json({ reply });
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+  } catch (e) {
+    res.json({ reply: "❌ Ошибка сервера" });
   }
 });
 
-app.listen(process.env.PORT, () => {
-  console.log("Server running on port", process.env.PORT);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Server running on", PORT));
